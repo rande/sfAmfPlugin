@@ -1,0 +1,6 @@
+autoload:
+  amf_classes:
+    name:       Plugin source files
+    ext:        .php 
+    path:       "%SF_PLUGINS_DIR%/sfAmfPlugin/lib/"
+    recursive:  true
