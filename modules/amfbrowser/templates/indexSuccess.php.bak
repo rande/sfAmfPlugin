@@ -1,13 +1,11 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
-  <?php use_stylesheet('/sfAmfPlugin/css/sfAmfPluginBrowser.css') ?>
-  <?php use_javascript('/sfAmfPlugin/js/mootools-core.js') ?>
-  <?php use_javascript('/sfAmfPlugin/js/mootools-more.js') ?>
-  <?php use_javascript('/sfAmfPlugin/js/sfAmfPluginBrowser.js') ?>
+  <link rel="stylesheet" type="text/css" href="<?php use_stylesheet('/sfAmfPlugin/css/sfAmfPluginBrowser.css') ?>" />
+  <script type="text/javascript" src="<?php use_javascript('/sfAmfPlugin/js/mootools-core.js') ?>"></script>
+  <script type="text/javascript" src="<?php use_javascript('/sfAmfPlugin/js/mootools-more.js') ?>"></script>
+  <script type="text/javascript" src="<?php use_javascript('/sfAmfPlugin/js/sfAmfPluginBrowser.js') ?>"></script>
   <link rel="shortcut icon" href="/favicon.ico" />
-  <?php include_javascripts() ?>
-  <?php include_stylesheets() ?>
 </head>
 <body>
 <div id="global">
@@ -24,10 +22,10 @@
     <?php $is_empty = true; ?>
     <?php foreach ($class->getMethods() as $method): ?>
     
-      <?php if (!$method->isPublic() or $method->getDeclaringClass()->getParentClass() == null) continue;?>
+      <?php if (!$method->isPublic() or $method->getDeclaringClass() != $class) continue;?>
 
       <?php $is_empty = false; ?>
-      <li class="method"><?php echo link_to($method->getName(), 'amfbrowser/index?method='.urlencode($package_name.'::'.$method->getName()));?></li>
+      <li class="method"><?php echo link_to($method->getName(), 'amfBrowser/index?method='.urlencode($package_name.'::'.$method->getName()));?></li>
     <?php endforeach;?>
 
     <?php if ($is_empty):?>

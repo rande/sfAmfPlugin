@@ -59,7 +59,7 @@ class amfBrowserActions extends sfActions {
 
                     //-- JSON object
                     if (substr($arg, 0, 1) == '[' or substr($arg, 0, 1) == '{') {
-                        $arg = json_decode($arg, true);
+                        $arg = json_decode($arg);
                         if (is_null($arg))
                             $this->errors[] = 'Bad-formatted JSON!';
                     }

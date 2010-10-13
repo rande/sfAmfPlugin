@@ -176,14 +176,9 @@ class sfAmfGateway {
         foreach ($files_paths as $path) {
             $class_name = $this->getClassName($path);
             $full_package_name = $this->getPackageName($path);
-            $class = new ReflectionClass($class_name);
 
-            // drop 'base' and possible abstract classes
-            if (!$class->isAbstract())
-            {
-              require_once $path;
-              $reflection_classes[$full_package_name] = $class;
-            }
+            require_once $path;
+            $reflection_classes[$full_package_name] = new ReflectionClass($class_name);
         }
 
         return $reflection_classes;

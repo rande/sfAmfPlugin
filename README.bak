@@ -231,8 +231,9 @@ I like to hear from you! Maybe you have an idea how to enhance the plugin. Just 
 
 Changelog
 ---------
-  * 1.5.2 (??)
-    * Fixing smaller bugs
+  * 1.6.0 (??)
+    * Drastically improved class mapping features
+    * Added caching annotation
   * 1.5.1 (01-11-2010)
     * Fixed bug with DateTime handling of objects in Service-Browser
     * Improved Look and feel of the Service browser
