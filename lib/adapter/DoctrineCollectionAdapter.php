@@ -7,22 +7,25 @@
  * file that was distributed with this source code.
  */
 
-class DoctrineCollectionAdapter extends sfAdapterBase {
+class DoctrineCollectionAdapter extends sfAdapterBase
+{
 
-    public static function getInstance() {
-        return new DoctrineCollectionAdapter();
+  public static function getInstance()
+  {
+    return new DoctrineCollectionAdapter();
+  }
+
+  public function run($data)
+  {
+    $result = array();
+    $size = sizeof($data);
+    $record_adapter = new DoctrineRecordAdapter();
+
+    for ($i = 0; $i < $size; $i++)
+    {
+      $result[$i] = $record_adapter->run($data[$i]);
     }
 
-    public function run($data) {
-        $result = array();
-        $size = sizeof($data);
-        $record_adapter = new DoctrineRecordAdapter();
-
-        for($i=0;$i<$size;$i++) {
-            $result[$i] = $record_adapter->run($data[$i]);
-        }
-
-        return $result;
-    }
+    return $result;
+  }
 }
-?>

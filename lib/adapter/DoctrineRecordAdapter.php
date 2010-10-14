@@ -7,35 +7,41 @@
  * file that was distributed with this source code.
  */
 
-class DoctrineRecordAdapter extends sfAdapterBase {
+class DoctrineRecordAdapter extends sfAdapterBase
+{
 
-    public function run($data) {
-        $columns = $data->getTable()->getColumns();
+  public function run($data)
+  {
+    $columns = $data->getTable()->getColumns();
 
-        $relations = $data->getTable()->getRelations();
+    $relations = $data->getTable()->getRelations();
 
-        $available_columns = $data->toArray();
-        $result = new stdClass();
+    $available_columns = $data->toArray();
+    $result = new stdClass();
 
-        foreach ($available_columns as $cn=>$value) {
-            if (!array_key_exists($cn, $columns)) {
+    foreach ($available_columns as $cn => $value)
+    {
+      if (!array_key_exists($cn, $columns))
+      {
 
-                if ($data->$cn instanceof Doctrine_Collection ) {
-                    $result->$cn = DoctrineCollectionAdapter::getInstance()->run($data->$cn);
-                }
-                else {
-                    $result->$cn = $this->run($data->$cn);
-                }
-            }
-            else if (array_key_exists($cn, $columns)) {
-                    $cp = $columns[$cn];
-                    $to_type = 'to_'.$cp['type'];
-                    $result->$cn = $this->$to_type($data->$cn);
-                }
+        if ($data->$cn instanceof Doctrine_Collection)
+        {
+          $result->$cn = DoctrineCollectionAdapter::getInstance()->run($data->$cn);
         }
-
-        return $result;
-
+        else
+        {
+          $result->$cn = $this->run($data->$cn);
+        }
+      }
+      else if (array_key_exists($cn, $columns))
+      {
+        $cp = $columns[$cn];
+        $to_type = 'to_' . $cp['type'];
+        $result->$cn = $this->$to_type($data->$cn);
+      }
     }
+
+    return $result;
+
+  }
 }
-?>

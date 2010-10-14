@@ -7,6 +7,7 @@
  * file that was distributed with this source code.
  */
 
-class AmfClassMapping extends Annotation {
-	public $name;	
+class AmfClassMapping extends Annotation
+{
+  public $name;
 }

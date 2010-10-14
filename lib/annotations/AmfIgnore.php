@@ -7,4 +7,6 @@
  * file that was distributed with this source code.
  */
 
-class AmfIgnore extends Annotation {}
+class AmfIgnore extends Annotation
+{
+}

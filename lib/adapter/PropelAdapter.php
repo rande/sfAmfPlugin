@@ -7,19 +7,21 @@
  * file that was distributed with this source code.
  */
 
-class PropelAdapter extends sfAdapterBase {
-	
-	public function run($data) {
-		$result = new stdClass();
-		
-		$data_array = $data->toArray();
-		
-		foreach ($data_array as $key=>$value) {
-			$result->$key = $value;
-		}
-		
-        return $result;
-		
-	}
+class PropelAdapter extends sfAdapterBase
+{
+
+  public function run($data)
+  {
+    $result = new stdClass();
+
+    $data_array = $data->toArray();
+
+    foreach ($data_array as $key => $value)
+    {
+      $result->$key = $value;
+    }
+
+    return $result;
+
+  }
 }
-?>

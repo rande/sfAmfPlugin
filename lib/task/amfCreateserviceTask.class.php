@@ -24,17 +24,17 @@ class amfCreateserviceTask extends sfBaseTask
   protected function configure()
   {
     // // add your own arguments here
-     $this->addArguments(array(
-       new sfCommandArgument('service_name', sfCommandArgument::REQUIRED, 'Name of the Service (i.e. User)'),
-     ));
+    $this->addArguments(array(
+      new sfCommandArgument('service_name', sfCommandArgument::REQUIRED, 'Name of the Service (i.e. User)'),
+    ));
 
     // // add your own options here
     $this->addOptions(array(
-       new sfCommandOption('package', null, sfCommandOption::PARAMETER_REQUIRED, 'Package name (i.e. de.shiftup.services)'),
+      new sfCommandOption('package', null, sfCommandOption::PARAMETER_REQUIRED, 'Package name (i.e. de.shiftup.services)'),
     ));
 
-    $this->namespace        = 'amf';
-    $this->name             = 'create-service';
+    $this->namespace = 'amf';
+    $this->name = 'create-service';
     $this->briefDescription = 'Creates a new AMF-Service for the sfAmfPlugin';
     $this->detailedDescription = <<<EOF
 The amf:create-service task generates a service class that is enabled to use 
@@ -61,53 +61,56 @@ EOF;
   /**
    * @see sfTask
    */
-  protected function execute($arguments = array(), $options = array()) {
+  protected function execute($arguments = array(), $options = array())
+  {
     $service = $arguments['service_name'];
     $package = $options['package'];
 
     // Validate the service name
-    if (!preg_match('/^[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*$/', $service)) {
+    if (!preg_match('/^[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*$/', $service))
+    {
       throw new sfCommandException(sprintf('The service name "%s" is invalid.', $service));
     }
 
     // creating folder structure
-    $serviceDir = sfConfig::get('sf_lib_dir').'/services/'.
-                      str_replace(".", "/",$options['package']);
-    if (array_key_exists('package', $options)) {
+    $serviceDir = sfConfig::get('sf_lib_dir') . '/services/' . str_replace(".", "/", $options['package']);
+    if (array_key_exists('package', $options))
+    {
       $serviceDir .= '/';
     }
 
-    $classFileName = $service.'Service.class.php';
+    $classFileName = $service . 'Service.class.php';
 
-    if (file_exists($serviceDir.$classFileName)) {
+    if (file_exists($serviceDir . $classFileName))
+    {
       throw new sfCommandException(sprintf('The service "%s" already exists in the "%s" folder.', $classFileName, $serviceDir));
     }
 
     $this->getFilesystem()->mkdirs($serviceDir);
 
     // generate service class file
-    $properties = parse_ini_file(sfConfig::get('sf_config_dir').'/properties.ini', true);
+    $properties = parse_ini_file(sfConfig::get('sf_config_dir') . '/properties.ini', true);
     $constants = array(
-      'PROJECT_NAME'  => isset($properties['symfony']['name']) ? $properties['symfony']['name'] : 'symfony',
-      'SERVICE_NAME'  => $service,
-      'PACKAGE_NAME'  => $package,
-      'AUTHOR_NAME'   => isset($properties['symfony']['author']) ? $properties['symfony']['author'] : 'Your name here',
+      'PROJECT_NAME' => isset($properties['symfony']['name']) ? $properties['symfony']['name'] : 'symfony',
+      'SERVICE_NAME' => $service,
+      'PACKAGE_NAME' => $package,
+      'AUTHOR_NAME' => isset($properties['symfony']['author']) ? $properties['symfony']['author'] : 'Your name here',
     );
 
-    if (is_readable(sfConfig::get('sf_data_dir').'/skeleton/amfservice'))
+    if (is_readable(sfConfig::get('sf_data_dir') . '/skeleton/amfservice'))
     {
-      $skeletonDir = sfConfig::get('sf_data_dir').'/skeleton/amfservice';
+      $skeletonDir = sfConfig::get('sf_data_dir') . '/skeleton/amfservice';
     }
     else
     {
-      $skeletonDir = dirname(__FILE__).'/skeleton/amfservice';
+      $skeletonDir = dirname(__FILE__) . '/skeleton/amfservice';
     }
 
     // create the new service file
-    $this->getFilesystem()->copy($skeletonDir.'/service.php', $serviceDir.$classFileName);
+    $this->getFilesystem()->copy($skeletonDir . '/service.php', $serviceDir . $classFileName);
 
     // customize service file
-    $this->getFilesystem()->replaceTokens($serviceDir.$classFileName, '##', '##', $constants);
+    $this->getFilesystem()->replaceTokens($serviceDir . $classFileName, '##', '##', $constants);
 
   }
 }
