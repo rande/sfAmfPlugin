@@ -27,7 +27,7 @@ class sfAmfPluginBuildServiceTask extends sfAmfPluginGeneratorTask
     $this->addOptions(array(
       new sfCommandOption('connection', '-c', sfCommandOption::PARAMETER_REQUIRED, 'The connection name', sfConfig::get('sf_orm')),
       new sfCommandOption('service_dir', '-s', sfCommandOption::PARAMETER_REQUIRED, 'The service dir name', 'services'),
-      new sfCommandOption('package', '-p', sfCommandOption::PARAMETER_REQUIRED, 'Package name (i.e. org.symfony.services)'),
+      new sfCommandOption('package', '-p', sfCommandOption::PARAMETER_REQUIRED, 'Package name (i.e. org.symfony.services)', 'app'),
       new sfCommandOption('base_package', '-b', sfCommandOption::PARAMETER_REQUIRED, 'Package name for based classes (i.e. org.symfony.service.base)', 'base'),
       new sfCommandOption('vo_package', '-v', sfCommandOption::PARAMETER_REQUIRED, 'Package name for valueobjects classes (i.e. org.symfony.service.vo)', 'vo'),
     ));

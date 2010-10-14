@@ -1,5 +1,7 @@
 [?php
 
+SabreAMF_ClassMapper::registerClass('<?php echo $this->getFullVoPackage() ?>','<?php echo $this->table->getClassnameToReturn() ?>');
+
 /**
  * <?php echo $this->table->getClassnameToReturn() ?> value object.
  *

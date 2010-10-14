@@ -8,7 +8,7 @@
  */
 
 /**
- * Generator-Class for the generation of AMF-Service class based on Doctrine 
+ * Generator-Class for the generation of AMF-Service class based on Doctrine
  *
  * @author Stephane Bachelier (http://blog.0x89b.org)
  * @copyright Stephane Bachelier
@@ -32,7 +32,7 @@ abstract class sfAmfPluginGenerator extends sfGenerator
 
   /**
    *
-   */ 
+   */
   public function initialize(sfGeneratorManager $generatorManager)
   {
     parent::initialize($generatorManager);
@@ -44,12 +44,12 @@ abstract class sfAmfPluginGenerator extends sfGenerator
   private function initializeLogSection(sfEventDispatcher $dispatcher, sfFormatter $formatter)
   {
     $this->dispatcher = $dispatcher;
-    $this->formatter  = $formatter;
+    $this->formatter = $formatter;
   }
 
   /**
    *
-   */ 
+   */
   public function logSection($message, $size = null, $style = 'INFO')
   {
     $this->dispatcher->notify(new sfEvent($this, 'command.log', array($this->formatter->formatSection($this->logSection, $message, $size, $style))));
@@ -57,7 +57,7 @@ abstract class sfAmfPluginGenerator extends sfGenerator
 
   /**
    *
-   */ 
+   */
   public function generate($params = array())
   {
     $this->initializeLogSection($params['dispatcher'], $params['formatter']);
@@ -75,21 +75,22 @@ abstract class sfAmfPluginGenerator extends sfGenerator
   }
 
   abstract protected function setConnection($connection);
+
   abstract protected function loadModels();
 
   abstract protected function generateAll();
 
   /**
    *
-   */ 
+   */
   protected function replaceTokens($file)
   {
-    $properties = parse_ini_file(sfConfig::get('sf_config_dir').'/properties.ini', true);
+    $properties = parse_ini_file(sfConfig::get('sf_config_dir') . '/properties.ini', true);
     $constants = array(
-      'PROJECT_NAME'  => isset($properties['symfony']['name']) ? $properties['symfony']['name'] : 'symfony',
-      'AUTHOR_NAME'   => isset($properties['symfony']['author']) ? $properties['symfony']['author'] : 'Your name here',
-      'PACKAGE_NAME'  => !is_null($this->package) ? $this->package : 'package name', 
-    );  
+      'PROJECT_NAME' => isset($properties['symfony']['name']) ? $properties['symfony']['name'] : 'symfony',
+      'AUTHOR_NAME' => isset($properties['symfony']['author']) ? $properties['symfony']['author'] : 'Your name here',
+      'PACKAGE_NAME' => !is_null($this->package) ? $this->package : 'package name',
+    );
 
     if (!is_readable($file))
     {
@@ -104,7 +105,7 @@ abstract class sfAmfPluginGenerator extends sfGenerator
 
   /**
    *
-   */ 
+   */
   protected function setPackage($name)
   {
     $this->package = $name;
@@ -112,7 +113,7 @@ abstract class sfAmfPluginGenerator extends sfGenerator
 
   /**
    *
-   */ 
+   */
   protected function getPackage()
   {
     return $this->package;
@@ -120,7 +121,7 @@ abstract class sfAmfPluginGenerator extends sfGenerator
 
   /**
    *
-   */ 
+   */
   protected function setBasePackage($name)
   {
     $this->basePackage = $name;
@@ -128,7 +129,7 @@ abstract class sfAmfPluginGenerator extends sfGenerator
 
   /**
    *
-   */ 
+   */
   protected function getBasePackage()
   {
     return $this->basePackage;
@@ -141,7 +142,7 @@ abstract class sfAmfPluginGenerator extends sfGenerator
 
   /**
    *
-   */ 
+   */
   protected function setVoPackage($name)
   {
     $this->voPackage = $name;
@@ -149,7 +150,7 @@ abstract class sfAmfPluginGenerator extends sfGenerator
 
   /**
    *
-   */ 
+   */
   protected function getVoPackage()
   {
     return $this->voPackage;
@@ -165,17 +166,19 @@ abstract class sfAmfPluginGenerator extends sfGenerator
    */
   protected function getPackageDirectory($package = null)
   {
-    $package = is_null($package) ? $this->package : $package; 
+    $package = is_null($package) ? $this->package : $package;
 
     if (is_null($package))
+    {
       return '';
+    }
 
     return str_replace('.', '/', $package);
   }
 
   /**
    *
-   */ 
+   */
   protected function setServiceDirname($name)
   {
     $this->serviceDirname = $name;
@@ -183,7 +186,7 @@ abstract class sfAmfPluginGenerator extends sfGenerator
 
   /**
    *
-   */ 
+   */
   protected function getServiceDirname()
   {
     return !is_null($this->serviceDirname) ? $this->serviceDirname : 'services';
@@ -194,14 +197,14 @@ abstract class sfAmfPluginGenerator extends sfGenerator
    */
   protected function getServiceDirectory($package = null)
   {
-    return sfConfig::get('sf_lib_dir') . '/' . 
-                    $this->getServiceDirname() . '/' . 
-                    $this->getPackageDirectory($package) . '/';
+    return sfConfig::get('sf_lib_dir') . '/' .
+      $this->getServiceDirname() . '/' .
+      $this->getPackageDirectory($package) . '/';
   }
 
   /**
    *
-   */ 
+   */
   protected function getAbsoluteFileName($name, $package = null)
   {
     return $this->getServiceDirectory($package) . $name . '.class.php';
@@ -209,12 +212,12 @@ abstract class sfAmfPluginGenerator extends sfGenerator
 
   /**
    *
-   */ 
+   */
   protected function checkServiceDirectories()
   {
     if (!is_dir($this->getServiceDirectory()))
     {
-      mkdir($this->getServiceDirectory(), 0777, true); 
+      mkdir($this->getServiceDirectory(), 0777, true);
     }
   }
 
@@ -236,37 +239,47 @@ abstract class sfAmfPluginGenerator extends sfGenerator
 
   protected function generateServiceFilesForModel($model)
   {
-      $serviceFileName = $model . 'Service';
-      $baseServiceFileName = 'Base' . $serviceFileName;
+    $serviceFileName = $model . 'Service';
+    $baseServiceFileName = 'Base' . $serviceFileName;
 
-      // services
-      $baseServiceFile = $this->getAbsoluteFileName($baseServiceFileName, $this->getFullBasePackage());
+    // services
+    $baseServiceFile = $this->getAbsoluteFileName($baseServiceFileName, $this->getFullBasePackage());
+
+    $this->writeFile(
+      $baseServiceFile,
+      $this->evalTemplate('sfAmfBaseServiceTemplate.php')
+    );
+
+    // services
+    $serviceFile = $this->getAbsoluteFileName($serviceFileName);
+
+    if (!file_exists($serviceFile))
+    {
+      $this->serviceParent = $baseServiceFileName;
 
       $this->writeFile(
-        $baseServiceFile,
-        $this->evalTemplate('sfAmfBaseServiceTemplate.php')
+        $serviceFile,
+        $this->evalTemplate('sfAmfServiceTemplate.php')
       );
+    }
+    else
+    {
+      $this->logSection(sprintf("File exists, ignore %s", basename($serviceFile)));
+    }
+    
+    // valueobjects
+    $voFile = $this->getAbsoluteFileName($model . 'ValueObject', $this->getFullVoPackage());
 
-      // services
-      $serviceFile = $this->getAbsoluteFileName($serviceFileName);
-
-      if (!file_exists($serviceFile))
-      {
-        $this->serviceParent = $baseServiceFileName;
-
-        $this->writeFile(
-          $serviceFile,
-          $this->evalTemplate('sfAmfServiceTemplate.php')
-        );
-      }
-
-      // valueobjects
-      $voFile = $this->getAbsoluteFileName($model . 'ValueObject', $this->getFullVoPackage());
-
+    if (!file_exists($voFile))
+    {
       $this->writeFile(
         $voFile,
         $this->evalTemplate('sfAmfValueObjectTemplate.php')
       );
-
+    }
+    else
+    {
+      $this->logSection(sprintf("File exists, ignore %s", basename($voFile)));
+    }
   }
 }
