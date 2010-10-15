@@ -1,6 +1,6 @@
 [?php
 
-SabreAMF_ClassMapper::registerClass('<?php echo $this->getFullVoPackage() ?>','<?php echo $this->table->getClassnameToReturn() ?>');
+SabreAMF_ClassMapper::registerClass('<?php echo $this->getFullVoPackage() ?>','<?php echo $this->table->getClassnameToReturn() ?>ValueObject');
 
 /**
  * <?php echo $this->table->getClassnameToReturn() ?> value object.
