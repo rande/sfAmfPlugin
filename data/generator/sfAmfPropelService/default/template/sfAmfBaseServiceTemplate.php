@@ -89,7 +89,7 @@ abstract class Base<?php echo $this->table->getClassname() ?>Service extends sfA
    * @param ValueObject Remote object
    * @return BaseObject The model object
    */   
-  protected function fromValueObject($valueObject)
+  public function fromValueObject($valueObject)
   {
     $baseObject = new <?php echo $this->table->getClassname() ?>();
     
@@ -139,7 +139,7 @@ if ($pkColumn != '')
    * @param BaseObject The model object
    * @return ValueObject The object to be used remotely
    */   
-  protected function toValueObject($baseObject)
+  public function toValueObject($baseObject)
   {
     $valueObject = new <?php echo $this->table->getClassname() ?>ValueObject();
 
