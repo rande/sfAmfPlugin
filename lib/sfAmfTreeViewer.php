@@ -6,10 +6,11 @@
  */
 class sfAmfTreeViewer
 {
+
   static function display($key, $value, $level = 0)
   {
 
-    $has_children = (is_array($value) or ($value instanceof SabreAMF_TypedObject));
+    $has_children = ((is_object($value) && !$value instanceof DateTime) || is_array($value) || ($value instanceof SabreAMF_TypedObject));
 
     $str = '';
     $type = ($value instanceof SabreAMF_TypedObject) ? $value->getAMFClassName() : gettype($value);
@@ -23,7 +24,15 @@ class sfAmfTreeViewer
 
     if ($has_children)
     {
-      $array = is_array($value) ? $value : $value->getAmfData();
+      if(is_object($value) && !$value instanceof DateTime)
+      {
+        $array = get_object_vars($value);
+      }
+      else
+      {
+        $array = is_array($value) ? $value : $value->getAmfData();
+      }
+
       $str .= '
           <td>&nbsp;</td>
         </tr>';

@@ -61,18 +61,18 @@ is accessable via a AMF-Request (you can change this with annotations, see below
 
 Instead of creating the Services by hand, you can use the amf:create-service commandline task.
 
-	$ symfony amf:create-service [--package=...] service_name
+    $ symfony amf:create-service [--package=...] service_name
 
 
 Sample 1:
 
-	$ symfony amf:create-service User
+    $ symfony amf:create-service User
 
 will create the file UserService.class.php in the folder lib/services of your project
 
 Sample 2:
 
-	$ symfony amf:create-service --package=de.shiftup.projectname User
+    $ symfony amf:create-service --package=de.shiftup.projectname User
 
 will create the file UserService.class.php in the folder lib/services/de/shiftup/projectname of your project
 
@@ -93,21 +93,30 @@ Alternativly you can create your own module and action:
 
     [php]
       public function executeAmf() {
-          $this->setLayout(false);
-          sfAmfGateway::getInstance()->handleRequest();
-          return sfView::NONE;
+        $this->setLayout(false);
+
+        $gateway = new sfAmfGateway(
+          $this->context->getConfiguration()->getEventDispatcher(),
+          $this->getResponse()
+        );
+
+        $gateway->handleRequest();
+
+        return sfView::NONE;
       }
 
 And last but not least, this is possible too:
 
     [php]
       public function executeAmf() {
-          $this->setLayout(false);
+        $this->setLayout(false);
 
-          $gateway = new sfAmfGateway();
-          $response = sfContext::getInstance()->getResponse();
-          $response->setContent($gateway->service());
-          return sfView::NONE;
+        $gateway = new sfAmfGateway(
+          $this->context->getConfiguration()->getEventDispatcher(),
+          $this->getResponse()
+        );
+
+        return $this->renderText($gateway->service());
       }
 
 AMF-Service Browser
@@ -118,16 +127,16 @@ For that just enable the module in the settings.yml of your application:
 
     [yaml]
       enabled_modules:  [default, amfbrowser]
-	  
+
 Please keep in mind that you should activate this module only for the DEV-Environment. Otherwise you will create
 a big security issue for your application. 
 After you have added the browser to your enabled_modules run the following symfony commands:
 
     $ symfony cc
-	$ symfony plugin:publish-assets sfAmfPlugin
+    $ symfony plugin:publish-assets sfAmfPlugin
 
 Now you can call the Service-Browser via calling http://host/amfbrowser
-	  
+
 ORM-Support
 -----------
 
@@ -144,7 +153,16 @@ Sample:
               return $result;
           }
       }
-    
+
+
+Security
+--------
+
+You can register two symfony events :
+
+    - sf_amf_plugin.on_dispatch         : call on every request
+    - sf_amf_plugin.on_authenticate     : call when SabreAMF_CallbackServer receive an onAuthenticate AMF request
+
     
 Annotations
 -----------

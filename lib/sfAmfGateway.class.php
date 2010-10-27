@@ -14,26 +14,30 @@
  * @example
  * <code>
  * public function executeAmf() {
- *  $this->setLayout(false);
+ *   $this->setLayout(false);
  *
- *  $gateway = new sfAmfGateway();
- *  $response = sfContext::getInstance()->getResponse();
- *  $response->setContent($gateway->service());
- *  $response->setContentType(SabreAMF_Const::MIMETYPE);
+ *   $gateway = new sfAmfGateway(
+ *     $this->context->getConfiguration()->getEventDispatcher(),
+ *     $this->getResponse()
+ *   );
  *
- *  return sfView::NONE;
+ *   return $this->renderText($gateway->service());
  * }
  * </code>
  *
  * @example
  * <code>
  * public function executeAmf() {
- *  $this->setLayout(false);
- *  sfAmfGateway::getInstance()->handleRequest();
+ *   $gateway = new sfAmfGateway(
+ *     $this->context->getConfiguration()->getEventDispatcher(),
+ *     $this->getResponse()
+ *   );
  *
- *  return sfView::NONE;
+ *   $gateway->handleRequest();
+ *
+ *   return sfView::NONE;
  * }
- * </code>
+ *  </code>
  *
  * @author Timo Haberkern (http://www.shift-up.de)
  * @copyright Timo Haberkern
@@ -42,11 +46,21 @@
 class sfAmfGateway
 {
 
+  protected
+    $event_dispatcher = null,
+    $response = null,
+    $server;
+
   /**
-   * default constructor
+   * @param sfEventDispatcher $event_dispatcher
+   * @param sfResponse $response
+   * @return void
    */
-  public function __construct()
+  public function __construct(sfEventDispatcher $event_dispatcher, sfResponse $response)
   {
+    $this->event_dispatcher = $event_dispatcher;
+    $this->response         = $response;
+    
     // setting an error handler, so PHP errors get handles as
     // exception. Otherwise you will get only error messages
     // without any meaning on flex side
@@ -54,21 +68,12 @@ class sfAmfGateway
   }
 
   /**
-   * Static factory method for creating an instance of sfAmfGateway
-   */
-  public static function getInstance()
-  {
-    return new sfAmfGateway();
-  }
-
-  /**
    * Convinance method. Setting the Response content type and content
    */
   public function handleRequest()
   {
-    $response = sfContext::getInstance()->getResponse();
-    $response->setContentType(SabreAMF_Const::MIMETYPE);
-    $response->setContent($this->service());
+    $this->response->setContentType(SabreAMF_Const::MIMETYPE);
+    $this->response->setContent($this->service());
   }
 
   /**
@@ -80,12 +85,11 @@ class sfAmfGateway
    */
   public function service()
   {
-    sfConfig::set('sf_web_debug', false);
-
     ob_start();
-    $server = new SabreAMF_CallbackServer();
-    $server->onInvokeService = array($this, 'onDispatch');
-    $server->exec();
+    $this->server = new SabreAMF_CallbackServer();
+    $this->server->onInvokeService = array($this, 'onDispatch');
+    $this->server->onAuthenticate = array($this, 'onAuthenticate');
+    $this->server->exec();
 
     $result = ob_get_contents();
 
@@ -95,6 +99,28 @@ class sfAmfGateway
     return $result;
   }
 
+  public function onAuthenticate($username, $password)
+  {
+
+    $event = $this->event_dispatcher->notify(new sfEvent($this->server, 'sf_amf_plugin.on_authenticate', array(
+      'username' => $username,
+      'password' => $password
+    )));
+
+    if(!$event->isProcessed())
+    {
+      throw new sfException('Please implements an sf_amf_plugin.on_authenticate event listener');
+    }
+
+    if($event->getReturnValue() != true)
+    {
+      throw new sfException('Authentification failed');
+    }
+
+    return false;
+    
+  }
+  
   /**
    * Dispatching callback method. This method is called by SambreAMF after decoding the
    * AMF Request
@@ -107,6 +133,12 @@ class sfAmfGateway
   public function onDispatch($service_name, $method_name, $arguments)
   {
     $service_class_path = str_replace(".", "/", $service_name);
+
+    $event = $this->event_dispatcher->notify(new sfEvent($this->server, 'sf_amf_plugin.on_dispatch', array(
+      'service_name'  => $service_name,
+      'method_name'   => $method_name,
+      'arguments'     => $arguments
+    )));
 
     $lib_dirs = $this->getProjectLibDirectories();
 
@@ -142,7 +174,6 @@ class sfAmfGateway
     }
 
     $instance = new $class_name;
-
 
     if (!is_callable(array($instance, $method_name)))
     {

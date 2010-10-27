@@ -15,7 +15,14 @@ class amfgatewayActions extends sfActions
   public function executeService()
   {
     $this->setLayout(false);
-    sfAmfGateway::getInstance()->handleRequest();
+
+    $gateway = new sfAmfGateway(
+      $this->context->getConfiguration()->getEventDispatcher(),
+      $this->getResponse()
+    );
+
+    $gateway->handleRequest();
+
     return sfView::NONE;
   }
 }

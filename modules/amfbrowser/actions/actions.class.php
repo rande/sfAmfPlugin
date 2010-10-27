@@ -8,11 +8,6 @@
 class amfBrowserActions extends sfActions
 {
 
-  public function preExecute()
-  {
-    //VoMapper::setEnabledVos(true);
-  }
-
   /**
    * Executes amf action
    *
@@ -22,10 +17,12 @@ class amfBrowserActions extends sfActions
   {
     $this->setLayout(false);
 
-    $gateway = new sfAmfGateway();
-    $response = sfContext::GetInstance()->getResponse();
-    $response->setContent($gateway->service());
-    return sfView::NONE;
+    $gateway = new sfAmfGateway(
+      $this->context->getConfiguration()->getEventDispatcher(),
+      $this->getResponse()
+    );
+    
+    return $this->renderText($gateway->service());
   }
 
   /**
@@ -37,7 +34,11 @@ class amfBrowserActions extends sfActions
   {
     $this->setLayout(false);
 
-    $gateway = new sfAmfGateway();
+    $gateway = new sfAmfGateway(
+      $this->context->getConfiguration()->getEventDispatcher(),
+      $this->getResponse()
+    );
+    
     $this->services_reflections = $gateway->parseAllServices();
 
     $this->resp = null;
